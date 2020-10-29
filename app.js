@@ -64,7 +64,7 @@ app.use(passport.session());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
+app.use(express.static(path.join(__dirname, 'public')));
 function auth (req, res, next) {
   console.log(req.user);
 
@@ -79,9 +79,6 @@ function auth (req, res, next) {
 }
 
 app.use(auth);
-
-app.use(express.static(path.join(__dirname, 'public')));
-
 
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
