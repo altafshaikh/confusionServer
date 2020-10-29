@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 var User = require('../models/user');
 
 var passport = require('passport');
+const cors = require('./cors');
 
 var authenticate = require('../authenticate');
 const userRouter = express.Router();
@@ -15,7 +16,8 @@ router.use(bodyParser.json());
 
 /* GET users listing. */
 userRouter.route('/')
-.get(authenticate.verifyAdmin, function(req, res, next) {
+.options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
+.get(cors.cors, authenticate.verifyAdmin, function(req, res, next) {
   User.find({})
     .then((users) => {
         res.statusCode = 200;
@@ -26,7 +28,7 @@ userRouter.route('/')
 });
 
 userRouter.route('/signup')
-.post( (req, res, next) => {
+.post(cors.corsWithOptions, (req, res, next) => {
   User.register(new User({username: req.body.username}), 
     req.body.password, (err, user) => {
     if(err) {
@@ -57,7 +59,7 @@ userRouter.route('/signup')
 });
 
 userRouter.route('/login')
-.post(passport.authenticate('local'), (req, res) => {
+.post(cors.corsWithOptions, passport.authenticate('local'), (req, res) => {
 
   var token = authenticate.getToken({_id: req.user._id});
   res.statusCode = 200;
@@ -66,7 +68,7 @@ userRouter.route('/login')
 });
 
 userRouter.route('/logout')
-.get((req, res) => {
+.get(cors.corsWithOptions, (req, res) => {
   if (req.session) {
     req.session.destroy();
     res.clearCookie('session-id');
